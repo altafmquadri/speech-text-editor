@@ -69,5 +69,68 @@ function createBox(item) {
     <img src="${image}" alt="${text}">
     <p class="info">${text}</p>
     `
+
+    box.addEventListener('click', () => {
+        setTextMessage(text)
+        speakText()
+
+        //add active effect
+        box.classList.add('active')
+        setTimeout(() => box.classList.remove('active'), 800)
+    })
     main.appendChild(box)
 }
+
+//init speech synth
+const message = new SpeechSynthesisUtterance()
+
+//store voices 
+let voices = []
+
+const getVoices = () => {
+    voices = speechSynthesis.getVoices()
+
+    voices.forEach(voice => {
+        const option = document.createElement('option')
+        option.value = voice.name
+        option.innerText = `${voice.name} ${voice.lang}`
+        voicesSelect.appendChild(option)
+    })
+}
+
+//set text
+const setTextMessage = (text) => {
+    message.text = text
+}
+
+//set voice
+const setVoice = (e) => {
+    message.voice = voices.find(v => {
+        return v.name === e.target.value
+    })
+}
+
+//speak text 
+const speakText = (text) => {
+    speechSynthesis.speak(message)
+}
+
+//voices changed
+speechSynthesis.addEventListener('voiceschanged', getVoices)
+
+//toggle text box
+toggleBtn.addEventListener('click', () => document.getElementById('text-box').classList.toggle('show'))
+
+// close button
+closeBtn.addEventListener('click', () => document.getElementById('text-box').classList.remove('show'))
+
+//change voice
+voicesSelect.addEventListener('change', setVoice)
+
+//read text
+readBtn.addEventListener('click', () => {
+    setTextMessage(textarea.value)
+    speakText()
+})
+
+getVoices()
